@@ -2,6 +2,7 @@ package CarpinteriaBack.Login.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -39,16 +40,26 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
+
+                // 🚫 QUITAR LOGIN AUTOMÁTICO DE SPRING
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(form -> form.disable())
+
                 .authorizeHttpRequests(auth -> auth
 
+                        // ✅ permitir preflight (CORS)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔓 rutas públicas
                         .requestMatchers(
-                                "/api/auth/login",
                                 "/",
                                 "/index.html",
                                 "/assets/**",
+                                "/api/auth/login",
                                 "/producto/public/**"
                         ).permitAll()
 
+                        // 🔐 rutas ADMIN
                         .requestMatchers(
                                 "/api/dashboard/**",
                                 "/api/admin/**",
@@ -62,12 +73,13 @@ public class SecurityConfig {
                                 "/producto/api/**"
                         ).hasRole("ADMINISTRADOR")
 
-                        .anyRequest().authenticated()
+                        // 🔓 TODO lo demás libre (IMPORTANTE)
+                        .anyRequest().permitAll()
                 )
-                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
+    // ✅ CONFIG CORS PARA ANGULAR
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         var config = new org.springframework.web.cors.CorsConfiguration();
