@@ -70,8 +70,7 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                // ✅ Para probar rápido con Angular/Postman usando Basic Auth
-                .httpBasic(Customizer.withDefaults())
+                
                 .build();
     }
 
