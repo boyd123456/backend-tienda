@@ -15,13 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    // ✅ Encoder (lo mismo que ya tenías)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Provider que le dice a Spring Security: "usa UserDetailsService (BD) + BCrypt"
     @Bean
     public DaoAuthenticationProvider authProvider(UserDetailsService userDetailsService,
                                                   PasswordEncoder passwordEncoder) {
@@ -30,8 +28,6 @@ public class SecurityConfig {
         return provider;
     }
 
-
-    // ✅ AuthenticationManager (útil si luego quieres login con /api/auth/login usando authenticate())
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -45,7 +41,6 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 Público
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/",
@@ -54,15 +49,14 @@ public class SecurityConfig {
                                 "/producto/public/**"
                         ).permitAll()
 
-                        // 🛑 Solo ADMINISTRADOR (según tu BD)
                         .requestMatchers(
                                 "/api/dashboard/**",
                                 "/api/admin/**",
                                 "/api/productos/**",
-                                "/api/empleados/**",   // ✅ ESTA ES LA CLAVE
+                                "/api/empleados/**",
                                 "/api/roles/**",
-                                "/api/clientes/**",     // ✅ AGREGA ESTO
-                                "/categoria/api/**",      // ✅ AGREGAR
+                                "/api/clientes/**",
+                                "/categoria/api/**",
                                 "/api/pedidos/**",
                                 "/lineadiseno/api/**",
                                 "/producto/api/**"
@@ -70,17 +64,17 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                
+                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
-    // ✅ CORS para Angular
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         var config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowedOrigins(java.util.List.of(
                 "http://localhost:4200",
+                "http://localhost:64348",
                 "https://geradomoises.github.io"
         ));
 
@@ -93,5 +87,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
 }
