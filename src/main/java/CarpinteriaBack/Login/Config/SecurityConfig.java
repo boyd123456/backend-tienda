@@ -9,27 +9,27 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-	    return new PasswordEncoder() {
-	        @Override
-	        public String encode(CharSequence rawPassword) {
-	            return rawPassword.toString();
-	        }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return rawPassword.toString();
+            }
 
-	        @Override
-	        public boolean matches(CharSequence rawPassword, String encodedPassword) {
-	            return rawPassword.toString().equals(encodedPassword);
-	        }
-	    };
-	}
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword.toString().equals(encodedPassword);
+            }
+        };
+    }
+
     @Bean
     public DaoAuthenticationProvider authProvider(UserDetailsService userDetailsService,
                                                   PasswordEncoder passwordEncoder) {
@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
 
-                // 🚫 QUITAR LOGIN AUTOMÁTICO DE SPRING
+                // 🚫 desactivar seguridad automática
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
 
@@ -59,13 +59,17 @@ public class SecurityConfig {
                         // ✅ permitir preflight (CORS)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 🔓 rutas públicas
+                        // 🔓 rutas públicas (IMPORTANTE)
                         .requestMatchers(
                                 "/",
                                 "/index.html",
                                 "/assets/**",
                                 "/api/auth/login",
-                                "/producto/public/**"
+                                "/producto/public/**",
+
+                                // ✅ AQUI ESTA EL ARREGLO
+                                "/lineadiseno/api/**",
+                                "/categoria/api/**"
                         ).permitAll()
 
                         // 🔐 rutas ADMIN
@@ -76,28 +80,26 @@ public class SecurityConfig {
                                 "/api/empleados/**",
                                 "/api/roles/**",
                                 "/api/clientes/**",
-                                "/categoria/api/**",
                                 "/api/pedidos/**",
-                                "/lineadiseno/api/**",
                                 "/producto/api/**"
                         ).hasRole("ADMINISTRADOR")
 
-                        // 🔓 TODO lo demás libre (IMPORTANTE)
+                        // 🔓 todo lo demás libre
                         .anyRequest().permitAll()
                 )
                 .build();
     }
 
-    // ✅ CONFIG CORS PARA ANGULAR
+    // ✅ CONFIG CORS
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         var config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowedOrigins(java.util.List.of(
-        		 "http://localhost:4200",
-        	        "http://localhost:64348",
-        	        "https://boyd123456.github.io",
-        	        "https://boyd123456.github.io/backend-tienda"
+                "http://localhost:4200",
+                "http://localhost:64348",
+                "https://boyd123456.github.io",
+                "https://boyd123456.github.io/backend-tienda"
         ));
 
         config.setAllowedMethods(java.util.List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
