@@ -85,9 +85,10 @@ public class SecurityConfig {
         var config = new org.springframework.web.cors.CorsConfiguration();
 
         config.setAllowedOrigins(java.util.List.of(
-                "http://localhost:4200",
-                "http://localhost:64348",
-                "https://geradomoises.github.io"
+        		 "http://localhost:4200",
+        	        "http://localhost:64348",
+        	        "https://boyd123456.github.io",
+        	        "https://boyd123456.github.io/backend-tienda"
         ));
 
         config.setAllowedMethods(java.util.List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
